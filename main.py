@@ -99,30 +99,28 @@ def main():
         if r.success:
             all_items.extend(r.items)
 
-    # 生成RSS
     rss_link = "https://cherylchenxue-star.github.io/sz-gov-rss/深圳政策rss.xml"
-    rss_content = build_rss(all_items, title="深圳政策RSS聚合", link=rss_link)
 
-    with open(args.output, "w", encoding="utf-8") as f:
-        f.write(rss_content)
-
-    print(f"\n[OK] RSS 已保存到: {args.output}")
-
-    # 生成HTML预览页
-    index_content = build_index(all_items)
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(index_content)
-
-    print("[OK] 预览页已保存到: index.html")
-
-    # 预览前10条
     if all_items:
+        # 生成RSS
+        rss_content = build_rss(all_items, title="深圳政策RSS聚合", link=rss_link)
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(rss_content)
+        print(f"\n[OK] RSS 已保存到: {args.output}")
+
+        # 生成HTML预览页
+        index_content = build_index(all_items)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(index_content)
+        print("[OK] 预览页已保存到: index.html")
+
+        # 预览前10条
         print("\n── 最新政策预览（前10条）──")
         for i, item in enumerate(sorted(all_items, key=lambda x: x.pub_date, reverse=True)[:10], 1):
             date_str = item.pub_date.strftime("%Y-%m-%d")
             print(f"{i:2}. [{date_str}] [{item.source}] {item.title}")
     else:
-        print("\n[警告] 未抓取到任何政策条目。")
+        print("\n[警告] 未抓取到任何政策条目，保留上次生成的文件。")
 
 
 if __name__ == "__main__":
