@@ -220,11 +220,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (!state.filters.sources.includes(p.sourceId)) return false;
           if (state.filters.tag !== 'all' && !p.tags.includes(state.filters.tag)) return false;
           if (state.filters.dateRange !== 'all') {
-            const policyDate = new Date(p.date);
+            const policyDate = new Date(p.date + 'T00:00:00');
             const now = new Date();
             if (state.filters.dateRange === 'custom') {
-              if (state.filters.customStart && policyDate < new Date(state.filters.customStart)) return false;
-              if (state.filters.customEnd && policyDate > new Date(state.filters.customEnd)) return false;
+              if (state.filters.customStart && policyDate < new Date(state.filters.customStart + 'T00:00:00')) return false;
+              if (state.filters.customEnd && policyDate > new Date(state.filters.customEnd + 'T23:59:59')) return false;
             } else {
               const days = { '7d': 7, '30d': 30, '90d': 90 }[state.filters.dateRange];
               const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
@@ -239,7 +239,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           }
           return true;
         }).sort((a, b) => {
-          const da = new Date(a.date), db = new Date(b.date);
+          const da = new Date(a.date + 'T00:00:00'), db = new Date(b.date + 'T00:00:00');
           return state.sort === 'desc' ? db - da : da - db;
         });
       }
@@ -265,6 +265,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           const label = document.createElement('label');
           label.className = 'flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer rounded';
           label.innerHTML = `<input type="checkbox" value="${s.id}" class="source-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" ${state.filters.sources.includes(s.id) ? 'checked' : ''}> <span class="text-sm text-gray-700">${s.name}</span>`;
+          const checkbox = label.querySelector('input');
+          checkbox.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (e.target.checked) {
+              if (!state.filters.sources.includes(val)) state.filters.sources.push(val);
+            } else {
+              state.filters.sources = state.filters.sources.filter(id => id !== val);
+            }
+            state.pagination.page = 1;
+            renderAll();
+          });
           container.appendChild(label);
         });
       }
@@ -547,25 +558,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           closeAllPanels();
           if (willShow) sourcePanel.classList.remove('hidden');
         });
-        document.getElementById('source-options').addEventListener('change', (e) => {
-          if (e.target.classList.contains('source-checkbox')) {
-            const val = e.target.value;
-            if (e.target.checked) {
-              if (!state.filters.sources.includes(val)) state.filters.sources.push(val);
-            } else {
-              state.filters.sources = state.filters.sources.filter(id => id !== val);
-            }
-            state.pagination.page = 1;
-            renderAll();
-          }
-        });
-        document.getElementById('source-select-all').addEventListener('click', () => {
+        document.getElementById('source-select-all').addEventListener('click', (e) => {
+          e.stopPropagation();
           state.filters.sources = data.sources.map(s => s.id);
           renderSourceDropdown();
           state.pagination.page = 1;
           renderAll();
         });
-        document.getElementById('source-clear').addEventListener('click', () => {
+        document.getElementById('source-clear').addEventListener('click', (e) => {
+          e.stopPropagation();
           state.filters.sources = [];
           renderSourceDropdown();
           state.pagination.page = 1;
@@ -581,6 +582,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         });
         document.getElementById('tag-options').addEventListener('click', (e) => {
           if (e.target.classList.contains('tag-option')) {
+            e.stopPropagation();
             state.filters.tag = e.target.dataset.value;
             state.pagination.page = 1;
             renderTagDropdown();
@@ -596,7 +598,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (willShow) datePanel.classList.remove('hidden');
         });
         datePanel.querySelectorAll('.date-option').forEach(btn => {
-          btn.addEventListener('click', () => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             state.filters.dateRange = btn.dataset.value;
             if (state.filters.dateRange !== 'custom') {
               document.getElementById('custom-start').value = '';
@@ -632,7 +635,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (willShow) sortPanel.classList.remove('hidden');
         });
         sortPanel.querySelectorAll('.sort-option').forEach(btn => {
-          btn.addEventListener('click', () => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             state.sort = btn.dataset.value;
             state.pagination.page = 1;
             renderAll();

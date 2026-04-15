@@ -125,6 +125,7 @@ class InanshanFetcher(BaseFetcher):
                 for span in source_clone.find_all("span"):
                     span.decompose()
                 source_text = sanitize_text(source_clone.get_text())
+                source_text = source_text.replace("发布机构：", "").replace("发布机构:", "").strip()
 
             items.append(
                 PolicyItem(
