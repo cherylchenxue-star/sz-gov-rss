@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>深圳政策RSS聚合</title>
-    <link></link>
+    <link>https://cherylchenxue-star.github.io/sz-gov-rss/深圳政策rss.xml</link>
     <description>深圳市及南山区政府部门政策通知聚合RSS</description>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 15 Apr 2026 16:27:56 +0800</lastBuildDate>
-    <atom:link href="" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 15 Apr 2026 16:44:26 +0800</lastBuildDate>
+    <atom:link href="https://cherylchenxue-star.github.io/sz-gov-rss/深圳政策rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title><![CDATA[深圳市中小企业服务局关于组织开展2026年专精特新“小巨人”企业申报和复核工作的通知]]></title>
       <link>https://zxqyj.sz.gov.cn/zwgk/zfxxgkml/tzgg/content/post_12735605.html</link>
