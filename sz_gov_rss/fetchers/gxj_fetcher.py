@@ -57,8 +57,18 @@ class GxjFetcher(BaseFetcher):
         if not link:
             link = f"https://gxj.sz.gov.cn/xxgk/xxgkml/zcfgjzcjd/content/post_{article.get('id')}.html"
 
-        date_str = article.get("date", "")
-        pub_date = parse_chinese_date(date_str)
+        # 优先使用 API 返回的 Unix 时间戳获取准确时间
+        pub_date = None
+        from datetime import timezone, timedelta
+        for ts_key in ["first_publish_time", "display_publish_time", "visible_publish_time"]:
+            ts = article.get(ts_key)
+            if ts and isinstance(ts, int) and ts > 0:
+                pub_date = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(timezone(timedelta(hours=8))).replace(tzinfo=None)
+                break
+
+        if pub_date is None:
+            date_str = article.get("date", "")
+            pub_date = parse_chinese_date(date_str)
         if pub_date is None:
             pub_date = datetime.now()
 
