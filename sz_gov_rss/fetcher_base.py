@@ -5,7 +5,9 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
+from datetime import datetime
+import re
 from .models import PolicyItem, FetchResult
 from .utils import extract_industry_tags
 
@@ -40,12 +42,14 @@ class BaseFetcher(ABC):
                 return truncate_text(text, max_len=300)
         return ""
 
-    def fetch_summary(self, url: str, selectors: List[str], timeout: int = 8) -> str:
+    def fetch_summary(self, url: str, selectors: List[str], timeout: int = 8, return_html: bool = False) -> str:
         """访问详情页并提取摘要"""
         from .utils import curl_fetch
 
         try:
             html = curl_fetch(url, timeout=timeout)
+            if return_html:
+                return html
             return self.extract_summary(html, selectors)
         except Exception:
             return ""
