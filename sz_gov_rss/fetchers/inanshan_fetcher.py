@@ -70,8 +70,8 @@ class InanshanFetcher(BaseFetcher):
             page = browser.new_page(viewport={"width": 1280, "height": 800})
 
             # 先访问找政策页面，再点击"查看更多"进入完整列表
-            page.goto(self.LANDING_URL, wait_until="networkidle", timeout=30000)
-            page.wait_for_timeout(3000)
+            page.goto(self.LANDING_URL, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(5000)
 
             # 尝试点击"查看更多"按钮
             more_btn = page.query_selector(".more")

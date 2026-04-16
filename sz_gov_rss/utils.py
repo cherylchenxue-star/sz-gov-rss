@@ -13,14 +13,18 @@ from typing import Optional, Dict, Any, List
 
 def curl_fetch(url: str, timeout: int = 20, follow_redirects: bool = True) -> str:
     """使用curl获取URL内容（绕过Python SSL问题）"""
-    cmd = ["curl", "-s", "-k", "--max-time", str(timeout)]
+    cmd = [
+        "curl", "-s", "-k", "--max-time", str(timeout), "--connect-timeout", "10",
+        "-A", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    ]
     if follow_redirects:
         cmd.append("-L")
     cmd.append(url)
 
     result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore")
     if result.returncode != 0:
-        raise RuntimeError(f"curl failed: {result.stderr}")
+        err = (result.stderr or result.stdout or "unknown error")[:300]
+        raise RuntimeError(f"curl failed ({result.returncode}): {err}")
     return result.stdout
 
 

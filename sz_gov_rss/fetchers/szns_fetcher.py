@@ -63,7 +63,7 @@ class SznsFetcher(BaseFetcher):
             )
             page = browser.new_page(viewport={"width": 1280, "height": 800})
 
-            page.goto(self.list_url, wait_until="domcontentloaded", timeout=30000)
+            page.goto(self.list_url, wait_until="domcontentloaded", timeout=60000)
             # 等待JS渲染表格内容
             page.wait_for_timeout(4000)
 
