@@ -27,11 +27,11 @@ SOURCES = [
     ("zxqyj", "深圳市中小企业服务局", ZxqyjFetcher()),
     ("commerce", "深圳市商务局", CommerceFetcher()),
     ("fgw", "深圳市发改委", FgwFetcher()),
-    ("szns_gxj", "南山区工信局", SznsFetcher("南山区工信局", "https://www.szns.gov.cn/nsqjjcjj/gkmlpt/index")),
-    ("szns_kcj", "南山区科创局", SznsFetcher("南山区科创局", "https://www.szns.gov.cn/nsqkcj/gkmlpt/index")),
-    ("szns_qyfw", "南山区企业服务中心", SznsFetcher("南山区企业服务中心", "https://www.szns.gov.cn/nsqqyfzfwzx/gkmlpt/index")),
+    ("szns_gxj", "南山区工信局", SznsFetcher("南山区工信局", "http://www.szns.gov.cn/nsqjjcjj/gkmlpt/index")),
+    ("szns_kcj", "南山区科创局", SznsFetcher("南山区科创局", "http://www.szns.gov.cn/nsqkcj/gkmlpt/index")),
+    ("szns_qyfw", "南山区企业服务中心", SznsFetcher("南山区企业服务中心", "http://www.szns.gov.cn/nsqqyfzfwzx/gkmlpt/index")),
     ("inanshan", "南山区企业服务", InanshanFetcher()),
-    ("stic", "深圳市科技创新局", SznsFetcher("深圳市科技创新局", "https://stic.sz.gov.cn/gkmlpt/policy")),
+    ("stic", "深圳市科技创新局", SznsFetcher("深圳市科技创新局", "http://stic.sz.gov.cn/gkmlpt/policy")),
 ]
 
 SOURCE_NAME_MAP = {sid: name for sid, name, _ in SOURCES}
