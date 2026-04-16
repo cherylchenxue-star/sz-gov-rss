@@ -31,12 +31,31 @@ def curl_fetch_json(url: str, timeout: int = 20) -> Dict[str, Any]:
 
 
 def parse_chinese_date(date_str: str) -> Optional[datetime]:
-    """解析多种中文日期格式"""
+    """解析多种中文日期格式，支持带时间"""
     if not date_str:
         return None
 
     date_str = date_str.strip()
+
+    # ISO 8601 含时间
+    iso_match = re.search(r"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})", date_str)
+    if iso_match:
+        try:
+            return datetime(
+                int(iso_match.group(1)), int(iso_match.group(2)), int(iso_match.group(3)),
+                int(iso_match.group(4)), int(iso_match.group(5)), int(iso_match.group(6))
+            )
+        except ValueError:
+            pass
+
     patterns = [
+        # datetime with time
+        (r"(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)), int(m.group(6)))),
+        (r"(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)))),
+        (r"(\d{4})/(\d{2})/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)), int(m.group(6)))),
+        (r"(\d{4})/(\d{2})/(\d{2})\s+(\d{2}):(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)))),
+        (r"(\d{4})年(\d{1,2})月(\d{1,2})日\s*(\d{2}):(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)))),
+        # date only
         (r"(\d{4})-(\d{2})-(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))),
         (r"(\d{4})/(\d{2})/(\d{2})", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))),
         (r"(\d{4})年(\d{1,2})月(\d{1,2})日", lambda m: datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))),
