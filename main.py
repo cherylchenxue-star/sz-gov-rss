@@ -121,6 +121,35 @@ def run_fetchers(max_items: int = 20, verbose: bool = False) -> List[FetchResult
     return results
 
 
+def reenrich_preserved_items(items: List[PolicyItem]) -> None:
+    """对保留的旧条目重新抓取详情页补全准确时间戳"""
+    from sz_gov_rss.fetcher_base import BaseFetcher
+    from sz_gov_rss.models import FetchResult
+
+    class DummyFetcher(BaseFetcher):
+        def fetch(self, max_items: int = 20) -> FetchResult:
+            return FetchResult(source_name="reenrich", items=[], success=True)
+
+    fetcher = DummyFetcher("reenrich", "")
+    selectors = [".article-content", ".content", ".TRS_Editor", ".news_cont_d_wrap", ".conter"]
+
+    enriched_count = 0
+    for item in items:
+        if item.pub_date.hour == 0 and item.pub_date.minute == 0 and item.link:
+            try:
+                html = fetcher.fetch_summary(item.link, selectors, timeout=10, return_html=True)
+                if html:
+                    precise = fetcher.extract_pub_date(html)
+                    if precise:
+                        item.pub_date = precise
+                        enriched_count += 1
+            except Exception:
+                pass
+
+    if enriched_count > 0:
+        print(f"[INFO] 为 {enriched_count} 条保留的旧条目补全了准确时间戳")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -167,14 +196,15 @@ def main():
 
     existing_items = load_existing_items(args.output)
     cutoff_date = datetime.now() - timedelta(days=30)
-    preserved_count = 0
+    preserved_items: List[PolicyItem] = []
     for item in existing_items:
         if item.source_id not in success_source_ids and item.pub_date >= cutoff_date:
-            all_items.append(item)
-            preserved_count += 1
+            preserved_items.append(item)
 
-    if preserved_count > 0:
-        print(f"[INFO] 从现有 RSS 保留 {preserved_count} 条失败源的旧数据（30天内）")
+    if preserved_items:
+        print(f"[INFO] 从现有 RSS 保留 {len(preserved_items)} 条失败源的旧数据（30天内），尝试补全时间戳...")
+        reenrich_preserved_items(preserved_items)
+        all_items.extend(preserved_items)
 
     rss_link = "https://cherylchenxue-star.github.io/sz-gov-rss/深圳政策rss.xml"
 
