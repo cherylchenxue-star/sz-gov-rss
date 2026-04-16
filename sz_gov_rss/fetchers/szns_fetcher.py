@@ -63,6 +63,9 @@ class SznsFetcher(BaseFetcher):
             )
             page = browser.new_page(viewport={"width": 1280, "height": 800})
 
+            # 拦截图片/CSS/字体加速加载
+            page.route("**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2,ttf,eot,ico}", lambda route: route.abort())
+
             page.goto(self.list_url, wait_until="domcontentloaded", timeout=60000)
             # 等待JS渲染表格内容
             page.wait_for_timeout(4000)

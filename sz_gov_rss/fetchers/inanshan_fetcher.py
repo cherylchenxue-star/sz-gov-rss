@@ -69,6 +69,9 @@ class InanshanFetcher(BaseFetcher):
             )
             page = browser.new_page(viewport={"width": 1280, "height": 800})
 
+            # 拦截图片/CSS/字体加速加载
+            page.route("**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2,ttf,eot,ico}", lambda route: route.abort())
+
             # 先访问找政策页面，再点击"查看更多"进入完整列表
             page.goto(self.LANDING_URL, wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(5000)
