@@ -61,13 +61,17 @@ class BaseFetcher(ABC):
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # meta 标签
-        for meta_name in ["article:published_time", "pubdate", "publishdate", "date"]:
-            meta = soup.find("meta", attrs={"property": meta_name}) or soup.find("meta", attrs={"name": meta_name})
-            if meta and meta.get("content"):
-                dt = parse_chinese_date(meta["content"])
-                if dt:
-                    return dt
+        # meta 标签（大小写不敏感）
+        for meta in soup.find_all("meta"):
+            meta_property = (meta.get("property") or "").lower()
+            meta_name = (meta.get("name") or "").lower()
+            if meta_property in {"article:published_time", "pubdate", "publishdate", "date"} or \
+               meta_name in {"pubdate", "publishdate", "date"}:
+                content = meta.get("content")
+                if content:
+                    dt = parse_chinese_date(content)
+                    if dt:
+                        return dt
 
         # 常见日期容器
         for sel in [".date", ".time", ".pubdate", ".pub-date", ".publish-date", ".article-date", ".source"]:
